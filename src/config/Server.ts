@@ -2,20 +2,17 @@ import express, { Application, Request, Response } from "express";
 import { WebSocketServer } from "ws";
 import http from "http";
 import WeatherRoutes from "../routes/weather.routes";
-// src/index.ts o Server.ts
-import '../cron/weatherCron';
-
+import { config } from "./index";
+import { logger } from "../utils/logger";
 
 class Server {
   private app: Application;
-  private port: string;
+  private port = config.port;
   private server: http.Server;
   private wss: WebSocketServer;
 
   constructor() {
     this.app = express();
-    this.port = process.env.PORT || "3000";
-
     this.middlewares();
     this.routes();
 
@@ -38,17 +35,17 @@ class Server {
 
   private websocketHandlers() {
     this.wss.on("connection", (ws) => {
-      console.log("Nuevo cliente conectado 🌐");
+      logger.info("🌐 Nuevo cliente conectado");
       ws.send(JSON.stringify({ message: "Conectado al servidor 🔊" }));
 
-      ws.on("message", (data) => console.log("Mensaje recibido:", data.toString()));
-      ws.on("close", () => console.log("Cliente desconectado 🚪"));
+      ws.on("message", (data) => logger.info("📩 Mensaje recibido:", data.toString()));
+      ws.on("close", () => logger.info("🚪 Cliente desconectado"));
     });
   }
 
   public listen() {
     this.server.listen(this.port, () => {
-      console.log(`🚀 Servidor HTTP + WS corriendo en puerto ${this.port}`);
+      logger.info(`🚀 Servidor HTTP + WS corriendo en puerto ${this.port}`);
     });
   }
 }

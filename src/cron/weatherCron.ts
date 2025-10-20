@@ -1,9 +1,9 @@
-// src/cron/weatherCron.ts
-import cron from 'node-cron';
-import { sendWeatherUpdate } from '../services/WeatherNotifier';
+import cron from "node-cron";
+import { sendWeatherUpdate } from "../services/WeatherNotifier";
+import { logger } from "../utils/logger";
 
-// Ejemplo: todos los días a las 08:12 AM
-cron.schedule('* * * * *', () => {
-  console.log('⏰ Enviando actualización del clima a las 08:12...');
-  sendWeatherUpdate();
+// Ejecutar todos los días a las 8:00 AM
+cron.schedule("* * * * *", async () => {
+  logger.info("⏰ Enviando actualización del clima cada minuto...");
+  await sendWeatherUpdate();
 });

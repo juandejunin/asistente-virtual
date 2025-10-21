@@ -5,6 +5,7 @@ import WeatherRoutes from "../routes/weather.routes";
 import { config } from "./index";
 import { logger } from "../utils/logger";
 import ConfigRoutes from "../routes/config.routes";
+import cors from 'cors';
 
 class Server {
   private app: Application;
@@ -35,6 +36,21 @@ class Server {
         next();
       }
     );
+    // Manejar errores de JSON
+    this.app.use(
+      (err: any, req: Request, res: Response, next: NextFunction) => {
+        if (err instanceof SyntaxError && "body" in err) {
+          console.error("❌ Error de sintaxis en JSON:", err.message);
+          return res.status(400).json({
+            message: "El cuerpo de la petición no es un JSON válido.",
+          });
+        }
+        next();
+      }
+    );
+
+    // 🔹 Habilitar CORS para desarrollo
+    this.app.use(cors());
   }
 
   private routes() {

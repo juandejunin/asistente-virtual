@@ -9,12 +9,14 @@ export interface ITelegramUser extends Document {
   createdAt: Date;
 }
 
+
 const TelegramUserSchema: Schema = new Schema({
   chatId: { type: String, required: true, unique: true },
   firstName: { type: String, required: true },
   lastName: { type: String },
   username: { type: String },
   subscriptions: { type: [String], default: [] },
+  city: { type: String, default: "" },  // 🔥 NUEVO
   createdAt: { type: Date, default: Date.now },
 });
 

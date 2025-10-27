@@ -7,4 +7,5 @@ export const config = {
   openWeatherApiKey: process.env.OPENWEATHER_API_KEY || "",
   telegramToken: process.env.TELEGRAM_TOKEN || "",
   telegramChatId: process.env.TELEGRAM_CHAT_ID || "",
+   baseUrl: process.env.BASE_URL || "",
 };

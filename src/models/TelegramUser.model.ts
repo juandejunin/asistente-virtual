@@ -6,6 +6,7 @@ export interface ITelegramUser extends Document {
   lastName?: string;
   username?: string;
   subscriptions: string[];
+  city?: string; // 🔥 Incluida en el esquema
   createdAt: Date;
 }
 

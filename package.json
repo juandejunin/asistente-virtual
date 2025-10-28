@@ -25,6 +25,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "geoip-lite": "^1.4.10",
     "mongoose": "^8.19.2",
     "node-cron": "^4.2.1",
     "node-telegram-bot-api": "^0.63.0",

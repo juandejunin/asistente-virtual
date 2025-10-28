@@ -8,3 +8,4 @@ const weatherController = new WeatherController();
 router.get("/today", weatherController.getTodayWeather);
 
 export default router;
+  

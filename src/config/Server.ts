@@ -8,6 +8,8 @@ import ConfigRoutes from "../routes/config.routes";
 import cors from "cors";
 import { connectToDatabase } from '../config/database';
 import { TelegramBotService } from "../services/Telegram";
+import GeoRoutes from "../routes/geo.routes";
+
 
 class Server {
   private app: Application;
@@ -95,6 +97,7 @@ class Server {
     // 🧭 Rutas principales
     this.app.use("/api/weather", WeatherRoutes);
     this.app.use("/api/config", ConfigRoutes);
+    this.app.use("/api/geo", GeoRoutes);
   }
 
   private websocketHandlers() {

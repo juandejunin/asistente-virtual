@@ -4,15 +4,24 @@ import geoip from "geoip-lite";
 const router = Router();
 
 router.get("/", (req: Request, res: Response) => {
-  // Tomar la IP real
-  const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0] || req.socket.remoteAddress;
-  const geo = geoip.lookup(ip!);
+  // Detectar IP real incluso detrás de proxy
+  let ip =
+    (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
+    req.socket.remoteAddress ||
+    "IP desconocida";
+
+  // Si viene con prefijo "::ffff:", lo limpiamos
+  if (ip.startsWith("::ffff:")) {
+    ip = ip.replace("::ffff:", "");
+  }
+
+  const geo = geoip.lookup(ip);
 
   res.json({
     ip,
     country: geo?.country || "Desconocido",
     region: geo?.region || "Desconocida",
-    city: geo?.city || "Desconocida"
+    city: geo?.city || "Desconocida",
   });
 });
 

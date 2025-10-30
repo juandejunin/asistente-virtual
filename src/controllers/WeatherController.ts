@@ -1,35 +1,26 @@
-// import { Request, Response } from "express";
-// import WeatherService from "../services/WeatherService";
-
-// class WeatherController {
-//   private weatherService: WeatherService;
-
-//   constructor() {
-//     this.weatherService = new WeatherService();
-//   }
-
-//   public getTodayWeather = async (req: Request, res: Response): Promise<void> => {
-//     try {
-//       const weather = await this.weatherService.getTodayWeather();
-
-//       const message = `☀️ Clima en ${process.env.CITY}:
-// - Estado: ${weather.description}
-// - Temperatura: ${weather.temperature}°C
-// - Humedad: ${weather.humidity}%`;
-
-//       res.status(200).json({ message, data: weather });
-//     } catch (error) {
-//       res.status(500).json({ message: "Error al obtener el clima", error });
-//     }
-//   };
-// }
-
-// export default WeatherController;
-
-
+// src/controllers/WeatherController.ts
 import { Request, Response } from "express";
 import WeatherService from "../services/WeatherService";
-import ConfigService from "../services/ConfigService"; // ✅ agregado
+import geoip from "geoip-lite";
+
+function getClientIp(req: Request): string {
+  let ip =
+    (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
+    req.socket.remoteAddress ||
+    "";
+  if (ip.startsWith("::ffff:")) ip = ip.replace("::ffff:", "");
+  // En entornos locales puede venir "::1" o "127.0.0.1"
+  if (ip === "::1") ip = "127.0.0.1";
+  return ip;
+}
+
+function getCityFromReq(req: Request): { city: string; country: string; ip: string } {
+  const ip = getClientIp(req);
+  const geo = geoip.lookup(ip);
+  const city = (geo?.city || "Madrid").toString();
+  const country = (geo?.country || "ES").toString();
+  return { city, country, ip };
+}
 
 class WeatherController {
   private weatherService: WeatherService;
@@ -38,19 +29,121 @@ class WeatherController {
     this.weatherService = new WeatherService();
   }
 
+  /** GET /api/weather?city=Opcional */
   public getTodayWeather = async (req: Request, res: Response): Promise<void> => {
     try {
-      const weather = await this.weatherService.getTodayWeather();
-      const { city } = ConfigService.getConfig(); // ✅ obtiene la ciudad actual
+      const { ip, city: inferredCity, country } = getCityFromReq(req);
+      const cityParam = (req.query.city as string) || undefined; // permitir override por query
+      const city = cityParam || inferredCity;
 
-      const message = `☀️ Clima en ${city}:
-- Estado: ${weather.description}
-- Temperatura: ${weather.temperature}°C
-- Humedad: ${weather.humidity}%`;
+      const weather = await this.weatherService.getTodayWeather(city);
 
-      res.status(200).json({ message, data: weather });
+      res.status(200).json({
+        location: { ip, city, country },
+        weather: {
+          description: weather.description,
+          temperature: weather.temperature,
+          feels_like: weather.feels_like,
+          humidity: weather.humidity,
+          wind_speed: weather.wind_speed,
+          wind_deg: weather.wind_deg,
+          pressure: weather.pressure,
+          visibility: weather.visibility,
+        },
+      });
     } catch (error) {
-      res.status(500).json({ message: "Error al obtener el clima", error });
+      res.status(500).json({
+        message: "Error al obtener el clima",
+        // No exponer detalles internos; si quieres, loggea 'error' en el servidor
+      });
+    }
+  };
+
+  /** ✅ NUEVO: GET /api/air?city=Opcional */
+  public getAirQuality = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { ip, city: inferredCity, country } = getCityFromReq(req);
+      const cityParam = (req.query.city as string) || undefined;
+      const city = cityParam || inferredCity;
+
+      const aq = await this.weatherService.getAirQualityByCity(city);
+
+      res.status(200).json({
+        location: { ip, city, country },
+        air: {
+          aqi: aq.aqi,
+          label: aq.label,
+          emoji: aq.emoji,
+          formatted: this.weatherService.formatAirQuality(aq),
+          components: aq.components, // μg/m³
+          timestamp: aq.timestamp,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Error al obtener la calidad del aire",
+      });
+    }
+  };
+
+  /** ✅ NUEVO: GET /api/weather-air?city=Opcional (todo en una) */
+  public getWeatherAndAir = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { ip, city: inferredCity, country } = getCityFromReq(req);
+      const cityParam = (req.query.city as string) || undefined;
+      const city = cityParam || inferredCity;
+
+      // Ejecutar en paralelo para menor latencia
+      const [weather, aq] = await Promise.all([
+        this.weatherService.getTodayWeather(city),
+        this.weatherService.getAirQualityByCity(city),
+      ]);
+
+      res.status(200).json({
+        location: { ip, city, country },
+        weather: {
+          description: weather.description,
+          temperature: weather.temperature,
+          feels_like: weather.feels_like,
+          humidity: weather.humidity,
+          wind_speed: weather.wind_speed,
+          wind_deg: weather.wind_deg,
+          pressure: weather.pressure,
+          visibility: weather.visibility,
+        },
+        air: {
+          aqi: aq.aqi,
+          label: aq.label,
+          emoji: aq.emoji,
+          formatted: this.weatherService.formatAirQuality(aq),
+          components: aq.components,
+          timestamp: aq.timestamp,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Error al obtener clima y calidad del aire",
+      });
+    }
+  };
+
+  /** (Opcional) GET /api/forecast?city=Opcional — ya lo tienes en el servicio */
+  public getDailyForecast = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { ip, city: inferredCity, country } = getCityFromReq(req);
+      const cityParam = (req.query.city as string) || undefined;
+      const city = cityParam || inferredCity;
+
+      const forecast = await this.weatherService.getDailyForecast(city);
+
+      res.status(200).json({
+        location: { ip, city, country },
+        forecast, // lista de 24h (8 entradas de 3h)
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Error al obtener el pronóstico",
+      });
     }
   };
 }

@@ -9,6 +9,7 @@ import cors from "cors";
 import { connectToDatabase } from '../config/database';
 import { TelegramBotService } from "../services/Telegram";
 import GeoRoutes from "../routes/geo.routes";
+import currencyRoutes from "../routes/currency.routes";
 
 
 class Server {
@@ -24,7 +25,7 @@ class Server {
     this.middlewares();
     this.routes();
 
-    new TelegramBotService();
+    // new TelegramBotService();
 
     this.server = http.createServer(this.app);
     this.wss = new WebSocketServer({ server: this.server });
@@ -99,6 +100,7 @@ class Server {
     this.app.use("/api/weather", WeatherRoutes);
     this.app.use("/api/config", ConfigRoutes);
     this.app.use("/api/geo", GeoRoutes);
+    this.app.use('/api/currency', currencyRoutes);
   }
 
   private websocketHandlers() {

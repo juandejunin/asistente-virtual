@@ -6,18 +6,18 @@ import { config } from "./index";
 import { logger } from "../utils/logger";
 import ConfigRoutes from "../routes/config.routes";
 import cors from "cors";
-import { connectToDatabase } from '../config/database';
+import { connectToDatabase } from "../config/database";
 import { TelegramBotService } from "../services/Telegram";
 import GeoRoutes from "../routes/geo.routes";
 import currencyRoutes from "../routes/currency.routes";
-
+import cotizacionesRoutes from "../routes/cotizaciones.routes";
+import dolaresRoutes from "../routes/dolares.routes";
 
 class Server {
   private app: Application;
   private port = config.port;
   private server: http.Server;
   private wss: WebSocketServer;
-
 
   constructor() {
     this.app = express();
@@ -30,7 +30,6 @@ class Server {
     this.server = http.createServer(this.app);
     this.wss = new WebSocketServer({ server: this.server });
     this.websocketHandlers();
-
   }
 
   private middlewares() {
@@ -100,7 +99,8 @@ class Server {
     this.app.use("/api/weather", WeatherRoutes);
     this.app.use("/api/config", ConfigRoutes);
     this.app.use("/api/geo", GeoRoutes);
-    this.app.use('/api/currency', currencyRoutes);
+    this.app.use("/api/cotizaciones", cotizacionesRoutes);
+    this.app.use("/api/dolares", dolaresRoutes);
   }
 
   private websocketHandlers() {
@@ -113,7 +113,6 @@ class Server {
       );
       ws.on("close", () => logger.info("🚪 Cliente desconectado"));
     });
-
   }
 
   public async listen() {

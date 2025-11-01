@@ -9,7 +9,6 @@ import cors from "cors";
 import { connectToDatabase } from "../config/database";
 import { TelegramBotService } from "../services/Telegram";
 import GeoRoutes from "../routes/geo.routes";
-import currencyRoutes from "../routes/currency.routes";
 import cotizacionesRoutes from "../routes/cotizaciones.routes";
 import dolaresRoutes from "../routes/dolares.routes";
 
@@ -25,7 +24,7 @@ class Server {
     this.middlewares();
     this.routes();
 
-    // new TelegramBotService();
+    new TelegramBotService();
 
     this.server = http.createServer(this.app);
     this.wss = new WebSocketServer({ server: this.server });

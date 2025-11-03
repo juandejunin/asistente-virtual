@@ -7,10 +7,13 @@ import { logger } from "../utils/logger";
 import ConfigRoutes from "../routes/config.routes";
 import cors from "cors";
 import { connectToDatabase } from "../config/database";
-import { TelegramBotService } from "../services/Telegram";
+
 import GeoRoutes from "../routes/geo.routes";
 import cotizacionesRoutes from "../routes/cotizaciones.routes";
 import dolaresRoutes from "../routes/dolares.routes";
+import sportRoutes from "../routes/deportes.routes";
+import { startSportsCacheCron } from "../cron/sportsCron";
+import { SportsService } from "../services/SportsService";
 
 class Server {
   private app: Application;
@@ -18,13 +21,17 @@ class Server {
   private server: http.Server;
   private wss: WebSocketServer;
 
+  public get websocketServer(): WebSocketServer {
+    return this.wss;
+  }
+
   constructor() {
     this.app = express();
     this.app.set("trust proxy", true);
     this.middlewares();
     this.routes();
 
-    new TelegramBotService();
+    // new TelegramBotService();
 
     this.server = http.createServer(this.app);
     this.wss = new WebSocketServer({ server: this.server });
@@ -100,6 +107,7 @@ class Server {
     this.app.use("/api/geo", GeoRoutes);
     this.app.use("/api/cotizaciones", cotizacionesRoutes);
     this.app.use("/api/dolares", dolaresRoutes);
+    this.app.use("/api/deportes", sportRoutes);
   }
 
   private websocketHandlers() {
@@ -116,9 +124,13 @@ class Server {
 
   public async listen() {
     await connectToDatabase();
+    // 🚀 Actualizar cache de deportes al inicio
+    await SportsService.refreshCache();
     this.server.listen(this.port, () => {
       logger.info(`🚀 Servidor HTTP + WS corriendo en puerto ${this.port}`);
     });
+
+    startSportsCacheCron(this);
   }
 }
 

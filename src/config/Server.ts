@@ -23,6 +23,7 @@ import seasonRoutes from "../routes/season.routes";
 import { SeasonService } from "../services/SeasonService";
 import { LeagueSeasonModel } from "../models/LeagueSeasonModel";
 import { LEAGUES_CONFIG, SEASON } from "../config/leagues.config";
+import { TelegramBotService } from "../services/Telegram/TelegramBotService";
 class Server {
   private app: Application;
   private port = config.port;
@@ -39,7 +40,7 @@ class Server {
     this.middlewares();
     this.routes();
 
-    // new TelegramBotService();
+    new TelegramBotService();
 
     this.server = http.createServer(this.app);
     this.wss = new WebSocketServer({ server: this.server });

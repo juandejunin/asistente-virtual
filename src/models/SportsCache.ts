@@ -13,8 +13,6 @@ const SportsCacheSchema: Schema = new Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-// Índice opcional para búsquedas más rápidas
-SportsCacheSchema.index({ type: 1 });
 
 export const SportsCacheModel = mongoose.model<ISportsCache>(
   "SportsCache",

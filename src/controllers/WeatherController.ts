@@ -2,6 +2,7 @@
 import { Request, Response } from "express";
 import WeatherService from "../services/WeatherService";
 import geoip from "geoip-lite";
+import { WeatherForecastService } from "../services/WeatherForecastService"; // ← NUEVO
 
 function getClientIp(req: Request): string {
   let ip =
@@ -14,7 +15,11 @@ function getClientIp(req: Request): string {
   return ip;
 }
 
-function getCityFromReq(req: Request): { city: string; country: string; ip: string } {
+function getCityFromReq(req: Request): {
+  city: string;
+  country: string;
+  ip: string;
+} {
   const ip = getClientIp(req);
   const geo = geoip.lookup(ip);
   const city = (geo?.city || "Madrid").toString();
@@ -24,13 +29,18 @@ function getCityFromReq(req: Request): { city: string; country: string; ip: stri
 
 class WeatherController {
   private weatherService: WeatherService;
+  private forecastService: WeatherForecastService; // ← NUEVO
 
   constructor() {
     this.weatherService = new WeatherService();
+    this.forecastService = new WeatherForecastService(); // ← NUEVO
   }
 
   /** GET /api/weather?city=Opcional */
-  public getTodayWeather = async (req: Request, res: Response): Promise<void> => {
+  public getTodayWeather = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const { ip, city: inferredCity, country } = getCityFromReq(req);
       const cityParam = (req.query.city as string) || undefined; // permitir override por query
@@ -87,7 +97,10 @@ class WeatherController {
   };
 
   /** ✅ NUEVO: GET /api/weather-air?city=Opcional (todo en una) */
-  public getWeatherAndAir = async (req: Request, res: Response): Promise<void> => {
+  public getWeatherAndAir = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const { ip, city: inferredCity, country } = getCityFromReq(req);
       const cityParam = (req.query.city as string) || undefined;
@@ -126,21 +139,29 @@ class WeatherController {
       });
     }
   };
-
-  /** (Opcional) GET /api/forecast?city=Opcional — ya lo tienes en el servicio */
-  public getDailyForecast = async (req: Request, res: Response): Promise<void> => {
+  /** GET /api/forecast?city=Opcional&today=true */
+  public getDailyForecast = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const { ip, city: inferredCity, country } = getCityFromReq(req);
       const cityParam = (req.query.city as string) || undefined;
+      const todayOnly = req.query.today === "true";
       const city = cityParam || inferredCity;
 
-      const forecast = await this.weatherService.getDailyForecast(city);
+      const data = todayOnly
+        ? await this.forecastService.getTodayHourly(city)
+        : await this.forecastService.getHourlyForecast(city);
 
       res.status(200).json({
         location: { ip, city, country },
-        forecast, // lista de 24h (8 entradas de 3h)
+        city: data.city,
+        forecast: data.forecast, // Array con time, temp, desc, etc.
+        today: todayOnly,
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error en getDailyForecast:", error);
       res.status(500).json({
         message: "Error al obtener el pronóstico",
       });

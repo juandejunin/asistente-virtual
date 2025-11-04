@@ -13,4 +13,7 @@ router.get("/air", weatherController.getAirQuality);
 // ✅ GET /api/weather/today-air → clima + calidad del aire juntos
 router.get("/today-air", weatherController.getWeatherAndAir);
 
+
+router.get('/forecast', weatherController.getDailyForecast);
+
 export default router;

@@ -14,7 +14,15 @@ import dolaresRoutes from "../routes/dolares.routes";
 import sportRoutes from "../routes/deportes.routes";
 import { startSportsCacheCron } from "../cron/sportsCron";
 import { SportsService } from "../services/SportsService";
+import { startFullArchiveCron } from "../cron/fullArchiveCron";
+// Al inicio del archivo
+import deportesArchiveRoutes from "../routes/deportesArchive.routes";
+import { SportsArchiveService } from "../services/SportsArchiveService";
+import seasonRoutes from "../routes/season.routes";
 
+import { SeasonService } from "../services/SeasonService";
+import { LeagueSeasonModel } from "../models/LeagueSeasonModel";
+import { LEAGUES_CONFIG, SEASON } from "../config/leagues.config";
 class Server {
   private app: Application;
   private port = config.port;
@@ -108,6 +116,8 @@ class Server {
     this.app.use("/api/cotizaciones", cotizacionesRoutes);
     this.app.use("/api/dolares", dolaresRoutes);
     this.app.use("/api/deportes", sportRoutes);
+    this.app.use("/api/deportes/archive", deportesArchiveRoutes);
+    this.app.use("/api/season", seasonRoutes);
   }
 
   private websocketHandlers() {
@@ -124,13 +134,13 @@ class Server {
 
   public async listen() {
     await connectToDatabase();
-    // 🚀 Actualizar cache de deportes al inicio
-    await SportsService.refreshCache();
+
     this.server.listen(this.port, () => {
       logger.info(`🚀 Servidor HTTP + WS corriendo en puerto ${this.port}`);
     });
 
     startSportsCacheCron(this);
+    startFullArchiveCron(this);
   }
 }
 

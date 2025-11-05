@@ -47,9 +47,12 @@ class WeatherController {
       const city = cityParam || inferredCity;
 
       const weather = await this.weatherService.getTodayWeather(city);
-
       res.status(200).json({
-        location: { ip, city, country },
+        location: {
+          ip,
+          city: weather.city || city,
+          country: weather.country || country,
+        },
         weather: {
           description: weather.description,
           temperature: weather.temperature,
@@ -72,20 +75,26 @@ class WeatherController {
   /** ✅ NUEVO: GET /api/air?city=Opcional */
   public getAirQuality = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { ip, city: inferredCity, country } = getCityFromReq(req);
-      const cityParam = (req.query.city as string) || undefined;
-      const city = cityParam || inferredCity;
+      const { ip, city: inferredCity } = getCityFromReq(req);
+      const cityParam = (req.query.city as string) || inferredCity;
+      const aq = await this.weatherService.getAirQualityByCity(cityParam);
 
-      const aq = await this.weatherService.getAirQualityByCity(city);
+      // Nuevo: obtener país real desde la API
+      const coordUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(
+        cityParam
+      )}&appid=${process.env.OPENWEATHER_API_KEY}&lang=es`;
+      const coordRes = await fetch(coordUrl);
+      const coordData = await coordRes.json();
+      const country = coordData?.sys?.country || "Desconocido";
 
       res.status(200).json({
-        location: { ip, city, country },
+        location: { ip, city: cityParam, country },
         air: {
           aqi: aq.aqi,
           label: aq.label,
           emoji: aq.emoji,
           formatted: this.weatherService.formatAirQuality(aq),
-          components: aq.components, // μg/m³
+          components: aq.components,
           timestamp: aq.timestamp,
         },
       });
@@ -145,25 +154,47 @@ class WeatherController {
     res: Response
   ): Promise<void> => {
     try {
-      const { ip, city: inferredCity, country } = getCityFromReq(req);
-      const cityParam = (req.query.city as string) || undefined;
-      const todayOnly = req.query.today === "true";
-      const city = cityParam || inferredCity;
+      const { ip, city: inferredCity } = getCityFromReq(req);
+      const cityParam = (req.query.city as string) || inferredCity;
 
-      const data = todayOnly
-        ? await this.forecastService.getTodayHourly(city)
-        : await this.forecastService.getHourlyForecast(city);
+      // Ejecutar en paralelo
+      const [weather, aq] = await Promise.all([
+        this.weatherService.getTodayWeather(cityParam),
+        this.weatherService.getAirQualityByCity(cityParam),
+      ]);
+
+      // Nuevo: obtener país real desde la API
+      const coordUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(
+        cityParam
+      )}&appid=${process.env.OPENWEATHER_API_KEY}&lang=es`;
+      const coordRes = await fetch(coordUrl);
+      const coordData = await coordRes.json();
+      const country = coordData?.sys?.country || "Desconocido";
 
       res.status(200).json({
-        location: { ip, city, country },
-        city: data.city,
-        forecast: data.forecast, // Array con time, temp, desc, etc.
-        today: todayOnly,
+        location: { ip, city: cityParam, country },
+        weather: {
+          description: weather.description,
+          temperature: weather.temperature,
+          feels_like: weather.feels_like,
+          humidity: weather.humidity,
+          wind_speed: weather.wind_speed,
+          wind_deg: weather.wind_deg,
+          pressure: weather.pressure,
+          visibility: weather.visibility,
+        },
+        air: {
+          aqi: aq.aqi,
+          label: aq.label,
+          emoji: aq.emoji,
+          formatted: this.weatherService.formatAirQuality(aq),
+          components: aq.components,
+          timestamp: aq.timestamp,
+        },
       });
-    } catch (error: any) {
-      console.error("Error en getDailyForecast:", error);
+    } catch (error) {
       res.status(500).json({
-        message: "Error al obtener el pronóstico",
+        message: "Error al obtener clima y calidad del aire",
       });
     }
   };

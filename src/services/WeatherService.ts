@@ -1,6 +1,8 @@
 import ConfigService from "./ConfigService";
 
 interface WeatherData {
+  city: string;
+  country: string;
   description: string;
   temperature: number;
   feels_like: number;
@@ -35,17 +37,17 @@ interface AirComponents {
 
 interface AirQualityData {
   aqi: 1 | 2 | 3 | 4 | 5;
-  label: string;     // "Buena", "Moderada", etc.
-  emoji: string;     // "🙂", "😐", etc.
+  label: string; // "Buena", "Moderada", etc.
+  emoji: string; // "🙂", "😐", etc.
   components: AirComponents;
   timestamp: number; // ms epoch
 }
 
 const AQI_LABELS: Record<number, { text: string; emoji: string }> = {
   1: { text: "Excelente", emoji: "🌿" },
-  2: { text: "Buena",     emoji: "🙂" },
-  3: { text: "Moderada",  emoji: "😐" },
-  4: { text: "Mala",      emoji: "😷" },
+  2: { text: "Buena", emoji: "🙂" },
+  3: { text: "Moderada", emoji: "😐" },
+  4: { text: "Mala", emoji: "😷" },
   5: { text: "Peligrosa", emoji: "☠️" },
 };
 
@@ -60,6 +62,7 @@ class WeatherService {
     }
   }
 
+  /** ✅ Obtener clima actual (ahora incluye ciudad y país reales) */
   public async getTodayWeather(city?: string): Promise<WeatherData> {
     const selectedCity = city || ConfigService.getConfig().city;
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(
@@ -75,6 +78,8 @@ class WeatherService {
     const data = await response.json();
 
     return {
+      city: data.name ?? selectedCity,
+      country: data.sys?.country ?? "Desconocido",
       description: data.weather?.[0]?.description || "Desconocido",
       temperature: data.main?.temp ?? 0,
       feels_like: data.main?.feels_like ?? 0,
@@ -94,7 +99,9 @@ class WeatherService {
 
     const response = await fetch(url);
     if (!response.ok)
-      throw new Error(`Error al obtener pronóstico: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Error al obtener pronóstico: ${response.status} ${response.statusText}`
+      );
 
     const data = await response.json();
 
@@ -141,7 +148,10 @@ class WeatherService {
   }
 
   /** --- NUEVO: obtener calidad de aire directamente por coordenadas --- */
-  public async getAirQualityByCoords(lat: number, lon: number): Promise<AirQualityData> {
+  public async getAirQualityByCoords(
+    lat: number,
+    lon: number
+  ): Promise<AirQualityData> {
     const url = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${this.apiKey}`;
 
     const response = await fetch(url);

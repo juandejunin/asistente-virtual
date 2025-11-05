@@ -5,6 +5,7 @@ import { TelegramUserService } from "./TelegramUserService";
 import WeatherService from "../WeatherService";
 import ConfigService from "../ConfigService";
 import { TelegramUserModel, ITelegramUser } from "../../models/TelegramUser.model";
+import WeatherLocationService from "../WeatherLocationService";
 
 export class TelegramBotService {
   private bot: TelegramBot;
@@ -128,16 +129,9 @@ export class TelegramBotService {
     );
   }
 
-  private async getCityFromLocation(lat: number, lon: number): Promise<string> {
-    const apiKey = process.env.OPENWEATHER_API_KEY!;
-    const url = `http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`;
-
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`Error al obtener ciudad: ${response.statusText}`);
-
-    const data = await response.json();
-    return data[0]?.name || "Ciudad desconocida";
-  }
+ private async getCityFromLocation(lat: number, lon: number): Promise<string> {
+  return await WeatherLocationService.getCityFromCoordinates(lat, lon);
+}
 
   private async showMainButtons(chatId: number) {
     await this.messageService.sendMessageWithButtons(

@@ -149,6 +149,7 @@ class WeatherController {
     }
   };
   /** GET /api/forecast?city=Opcional&today=true */
+  /** GET /api/forecast?city=Opcional&today=true */
   public getDailyForecast = async (
     req: Request,
     res: Response
@@ -157,44 +158,19 @@ class WeatherController {
       const { ip, city: inferredCity } = getCityFromReq(req);
       const cityParam = (req.query.city as string) || inferredCity;
 
-      // Ejecutar en paralelo
-      const [weather, aq] = await Promise.all([
-        this.weatherService.getTodayWeather(cityParam),
-        this.weatherService.getAirQualityByCity(cityParam),
-      ]);
+      // Usamos WeatherForecastService para obtener todas las horas
+      const forecastService = new WeatherForecastService();
+      const hourlyForecast = await forecastService.getHourlyForecast(cityParam);
 
-      // Nuevo: obtener país real desde la API
-      const coordUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(
-        cityParam
-      )}&appid=${process.env.OPENWEATHER_API_KEY}&lang=es`;
-      const coordRes = await fetch(coordUrl);
-      const coordData = await coordRes.json();
-      const country = coordData?.sys?.country || "Desconocido";
-
+      // Devolvemos el JSON completo con la ubicación y el array de horas
       res.status(200).json({
-        location: { ip, city: cityParam, country },
-        weather: {
-          description: weather.description,
-          temperature: weather.temperature,
-          feels_like: weather.feels_like,
-          humidity: weather.humidity,
-          wind_speed: weather.wind_speed,
-          wind_deg: weather.wind_deg,
-          pressure: weather.pressure,
-          visibility: weather.visibility,
-        },
-        air: {
-          aqi: aq.aqi,
-          label: aq.label,
-          emoji: aq.emoji,
-          formatted: this.weatherService.formatAirQuality(aq),
-          components: aq.components,
-          timestamp: aq.timestamp,
-        },
+        location: { ip, city: hourlyForecast.city, country: "ES" }, // opcional: agregar country real si querés
+        forecast: hourlyForecast.forecast,
       });
     } catch (error) {
+      console.error(error);
       res.status(500).json({
-        message: "Error al obtener clima y calidad del aire",
+        message: "Error al obtener pronóstico horario",
       });
     }
   };

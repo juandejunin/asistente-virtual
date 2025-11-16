@@ -3,7 +3,8 @@ import { Router, Request, Response } from "express";
 import ConfigController from "../controllers/ConfigController";
 import citiesRoutes from "./cities.routes";
 import WeatherLocationRoutes from "./WeatherLocationRoutes";
-import standingsRoutes from "./standings.routes";  // ← NUEVA
+import standingsRoutes from "./standings.routes";
+import scorersRoutes from "./scorers.routes"; // ← NUEVA
 
 const router = Router();
 const controller = new ConfigController();
@@ -14,15 +15,8 @@ router.post("/", controller.updateConfig);
 router.use("/cities", citiesRoutes);
 router.use("/location", WeatherLocationRoutes);
 
-// ← NUEVA RUTA
-router.use("/standings", standingsRoutes);  // → /api/config/standings/PL
-
-// Endpoint de prueba
-router.get("/test", (req: Request, res: Response) => {
-  res.json({
-    message: "ConfigRoutes está activo",
-    timestamp: new Date().toISOString()
-  });
-});
+// RUTAS DE FÚTBOL
+router.use("/standings", standingsRoutes);   // /api/config/standings/PL
+router.use("/", scorersRoutes);             // ← NUEVA: /api/config/scorers/PD, /cards/yellow/PD, etc.
 
 export default router;

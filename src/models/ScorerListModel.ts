@@ -17,6 +17,8 @@ const scorerSchema = new mongoose.Schema({
     crest: String,
   },
   goals: { type: Number, required: true },
+  assists: { type: Number, default: 0 },     // AÑADIR ESTO
+  penalties: { type: Number, default: 0 },   // Y ESTO
 });
 
 const scorerListSchema = new mongoose.Schema({

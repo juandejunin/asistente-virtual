@@ -24,6 +24,8 @@ interface Scorer {
   player: Player;
   team: Team;
   goals: number;
+  assists: number;     // ← NUEVO
+  penalties: number;   // ← NUEVO
 }
 
 export class ScorerService {
@@ -58,7 +60,7 @@ export class ScorerService {
     }
 
     // 3. Fetch a football-data.org
-    const url = `${this.apiUrl}/competitions/${leagueCode}/scorers?season=${year}`;
+    const url = `${this.apiUrl}/competitions/${leagueCode}/scorers?season=${year}&limit=100`;;
     const response = await fetch(url, {
       headers: {
         "X-Auth-Token": this.apiKey,

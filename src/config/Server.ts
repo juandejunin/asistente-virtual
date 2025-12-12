@@ -19,6 +19,7 @@ import { startFullArchiveCron } from "../cron/fullArchiveCron";
 import deportesArchiveRoutes from "../routes/deportesArchive.routes";
 import { SportsArchiveService } from "../services/SportsArchiveService";
 import seasonRoutes from "../routes/season.routes";
+import authRoutes from "../routes/auth.routes";
 
 import { SeasonService } from "../services/SeasonService";
 import { LeagueSeasonModel } from "../models/LeagueSeasonModel";
@@ -120,6 +121,8 @@ class Server {
     this.app.use("/api/deportes", sportRoutes);
     this.app.use("/api/deportes/archive", deportesArchiveRoutes);
     this.app.use("/api/season", seasonRoutes);
+    this.app.use("/api/auth", authRoutes);
+
     // this.app.use("/api/cities", citiesRoutes)
   }
 

@@ -19,12 +19,14 @@ import { startFullArchiveCron } from "../cron/fullArchiveCron";
 import deportesArchiveRoutes from "../routes/deportesArchive.routes";
 import { SportsArchiveService } from "../services/SportsArchiveService";
 import seasonRoutes from "../routes/season.routes";
+import authRoutes from "../routes/auth.routes";
 
 import { SeasonService } from "../services/SeasonService";
 import { LeagueSeasonModel } from "../models/LeagueSeasonModel";
 import { LEAGUES_CONFIG, SEASON } from "../config/leagues.config";
 import { TelegramBotService } from "../services/Telegram/TelegramBotService";
 import citiesRoutes from "../routes/cities.routes";
+import cookieParser from "cookie-parser";
 class Server {
   private app: Application;
   private port = config.port;
@@ -64,10 +66,14 @@ class Server {
       }
     );
 
+     this.app.use(cookieParser());
+
+    
+
     // 🌍 Habilitar CORS (permitir el frontend y pruebas locales)
     this.app.use(
       cors({
-        origin: "*", // ⚠️ En producción: ["https://tuapp.vercel.app"]
+        origin: "*", 
       })
     );
 
@@ -120,6 +126,8 @@ class Server {
     this.app.use("/api/deportes", sportRoutes);
     this.app.use("/api/deportes/archive", deportesArchiveRoutes);
     this.app.use("/api/season", seasonRoutes);
+    this.app.use("/api/auth", authRoutes);
+
     // this.app.use("/api/cities", citiesRoutes)
   }
 

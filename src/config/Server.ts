@@ -27,6 +27,12 @@ import { LEAGUES_CONFIG, SEASON } from "../config/leagues.config";
 import { TelegramBotService } from "../services/Telegram/TelegramBotService";
 import citiesRoutes from "../routes/cities.routes";
 import cookieParser from "cookie-parser";
+import forexRoutes from "../routes/forex.routes";
+import cryptoRoutes from "../routes/crypto.routes";
+import economyRoutes from "../routes/economy.routes";
+
+
+
 class Server {
   private app: Application;
   private port = config.port;
@@ -66,14 +72,12 @@ class Server {
       }
     );
 
-     this.app.use(cookieParser());
-
-    
+    this.app.use(cookieParser());
 
     // 🌍 Habilitar CORS (permitir el frontend y pruebas locales)
     this.app.use(
       cors({
-        origin: "*", 
+        origin: "*",
       })
     );
 
@@ -127,6 +131,10 @@ class Server {
     this.app.use("/api/deportes/archive", deportesArchiveRoutes);
     this.app.use("/api/season", seasonRoutes);
     this.app.use("/api/auth", authRoutes);
+    this.app.use("/api/forex", forexRoutes); // Solo forex
+    this.app.use("/api/crypto", cryptoRoutes);
+    this.app.use("/api/economy", economyRoutes);
+
 
     // this.app.use("/api/cities", citiesRoutes)
   }

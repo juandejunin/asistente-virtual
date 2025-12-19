@@ -9,6 +9,7 @@ export interface WeatherConfig {
   telegramChatId: string;
   baseUrl: string;
   cronSchedule: string; // Añadido
+  backendUrl: string; // ← AÑADIR
 }
 
 export const config: WeatherConfig = {
@@ -18,5 +19,6 @@ export const config: WeatherConfig = {
   telegramToken: process.env.TELEGRAM_TOKEN || "",
   telegramChatId: process.env.TELEGRAM_CHAT_ID || "",
   baseUrl: process.env.BASE_URL || "",
+  backendUrl: process.env.BACKEND_URL || "http://localhost:3000", // ← AÑADIR
   cronSchedule: process.env.CRON_SCHEDULE || "0 30 6 * * *", // Añadido, por defecto 6:30 AM
 };

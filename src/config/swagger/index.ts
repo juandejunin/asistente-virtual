@@ -3,6 +3,7 @@ import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { Application } from "express";
 import swaggerDefinition from "./swagger.config";
+import { config } from "../../config";
 
 const options: swaggerJSDoc.Options = {
   swaggerDefinition,
@@ -35,6 +36,11 @@ export function setupSwagger(app: Application): void {
     res.send(swaggerSpec);
   });
 
-  console.log("��� Swagger UI disponible en: http://localhost:3000/api-docs");
-  console.log("��� Swagger JSON spec en: http://localhost:3000/api-docs.json");
+  // ✅ USAR config.backendUrl DINÁMICAMENTE
+  const swaggerUrl = `${config.backendUrl}/api-docs`;
+  const jsonSpecUrl = `${config.backendUrl}/api-docs.json`;
+
+  console.log(`📚 Swagger UI disponible en: ${swaggerUrl}`);
+  console.log(`📄 Swagger JSON spec en: ${jsonSpecUrl}`);
+  console.log(`🌍 Entorno: ${process.env.NODE_ENV || "development"}`);
 }

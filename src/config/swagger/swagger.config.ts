@@ -1,5 +1,6 @@
 // src/config/swagger/swagger.config.ts
 import { SwaggerDefinition } from "swagger-jsdoc";
+import { config } from "../../config";
 
 const swaggerDefinition: SwaggerDefinition = {
   openapi: "3.0.0",
@@ -33,14 +34,14 @@ Todas las respuestas son en JSON con UTF-8.
       url: "https://opensource.org/licenses/MIT",
     },
   },
+  // Verifica que esto esté en swagger.config.ts
   servers: [
     {
-      url: "http://localhost:3000",
-      description: "Servidor de desarrollo",
-    },
-    {
-      url: "https://api.despertardigital.es",
-      description: "Servidor de producción",
+      url: config.backendUrl, // ← Debe usar la variable, no "http://localhost:3000"
+      description:
+        process.env.NODE_ENV === "production"
+          ? "Servidor de producción"
+          : "Servidor de desarrollo",
     },
   ],
   tags: [

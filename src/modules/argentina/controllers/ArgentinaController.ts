@@ -1,12 +1,12 @@
 // src/controllers/CurrencyController.ts
 import { Request, Response } from 'express';
-import { ExchangeService } from '../services/ExchangeService';
+import { ArgentinaService } from '../services/ArgentinaService';
 
-export class CurrencyController {
+export class ArgentinaController {
   // Cotizaciones oficiales (Euro, Real, Peso Uruguayo, etc)
   static async getCotizaciones(req: Request, res: Response) {
     try {
-      const data = await ExchangeService.getCotizaciones(); // nueva función
+      const data = await ArgentinaService.getCotizaciones(); // nueva función
       res.set("Content-Type", "application/json; charset=utf-8");
       res.json(data);
     } catch (err) {
@@ -18,7 +18,7 @@ export class CurrencyController {
   // Dólares según el mercado (blue, oficial, CCL, etc)
   static async getDolares(req: Request, res: Response) {
     try {
-      const data = await ExchangeService.getDolares(); // nueva función para dolar-api
+      const data = await ArgentinaService.getDolares(); // nueva función para dolar-api
       res.set("Content-Type", "application/json; charset=utf-8");
       res.json(data);
     } catch (err) {

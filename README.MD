@@ -1,131 +1,160 @@
-# 🌤️ Aplicación de Clima con Notificaciones por Telegram
-Descripción
+# 🌍 Despertar Digital API - Datos en Tiempo Real
 
-Esta aplicación permite obtener información meteorológica de una ciudad específica y enviar notificaciones automáticas de clima a Telegram.
-Además, cuenta con un servicio web REST para consultar el clima en tiempo real y para configurar dinámicamente la ciudad y el horario de envío de las notificaciones.
+**API completa para datos económicos, climáticos y deportivos en tiempo real**
 
-🏗️ Estructura del Proyecto
+[![API Status](https://img.shields.io/badge/status-operational-brightgreen)](https://despertardigital.es)
+[![Swagger Docs](https://img.shields.io/badge/docs-swagger-blue)](https://despertardigital.es/api-docs)
+[![Node.js](https://img.shields.io/badge/node-18%2B-green)](https://nodejs.org/)
 
-```
+## 📊 Módulos Disponibles
+
+### 🇦🇷 **Economía Argentina** 
+- **Dólares**: 7 tipos (blue, oficial, CCL, MEP, tarjeta, mayorista, cripto)
+- **Cotizaciones**: EUR, BRL, UYU, CLP (Banco Nación)
+- **Dashboard**: Vista unificada de toda la economía argentina
+
+### 🌍 **Forex Internacional**
+- **Divisas principales**: EUR/USD, USD/JPY, GBP/USD, USD/CHF, AUD/USD, USD/CAD
+- **Latinoamérica**: BRL, MXN
+- **Conversor**: Conversión en tiempo real entre +150 divisas
+
+### ₿ **Criptomonedas**
+- **Top 100**: Principales criptomonedas por capitalización
+- **Detalles**: Precios históricos, ATH/ATL, variaciones
+- **Top 5**: Endpoint optimizado para dashboards
+
+### 📈 **Economía Global** (Dashboards)
+- **Global**: Forex + Crypto
+- **Argentina**: Dólares + Cotizaciones
+- **Completo**: Todos los servicios integrados
+- **Unificado**: Forex con ARS integrado
+
+### ⚽ **Deportes**
+- **En desarrollo**: Fútbol, básquet, tenis
+
+### 🌤️ **Clima**
+- **Actual**: Condiciones meteorológicas
+- **Pronóstico**: Predicciones
+- **Notificaciones**: Alertas automáticas por Telegram
+
+## 🚀 Demo en Vivo
+
+**URL de producción**: https://despertardigital.es
+
+**Documentación API**: https://despertardigital.es/api-docs
+
+**Ejemplos rápidos**:
+```bash
+# Dólar blue actual
+curl https://despertardigital.es/api/economy/argentina/dolares
+
+# Forex internacional
+curl https://despertardigital.es/api/forex/global
+
+# Top 5 criptomonedas
+curl https://despertardigital.es/api/crypto/top5
+
+# Dashboard completo
+curl https://despertardigital.es/api/economy/complete
+
 src/
-├─ config/
-│  └─ Server.ts            # Configuración y arranque del servidor HTTP + WebSocket
-├─ controllers/
-│  ├─ WeatherController.ts # Lógica para endpoints de clima
-│  └─ ConfigController.ts  # Lógica para endpoints de configuración (ciudad y horario)
-├─ cron/
-│  └─ weatherCron.ts       # Cron job para enviar actualizaciones automáticas
-├─ routes/
-│  ├─ weather.routes.ts    # Rutas para consultar clima
-│  └─ config.routes.ts     # Rutas para configurar ciudad y horario
-├─ services/
-│  ├─ WeatherService.ts    # Servicio que obtiene datos de OpenWeather
-│  ├─ WeatherNotifier.ts   # Servicio que envía mensajes a Telegram
-│  ├─ TelegramService.ts   # Servicio que envía mensajes usando API de Telegram
-│  └─ ConfigService.ts     # Servicio que maneja la configuración dinámica
-├─ scripts/
-│  └─ sendWeatherMessage.ts # Script independiente para enviar el clima una vez
-└─ index.ts                # Punto de entrada principal de la aplicación
-
-
-```
-## ⚙️ Funcionalidad
-
-Obtener el clima actual de la ciudad configurada
-
-```
-Endpoint: GET /api/weather/today
-```
-Devuelve el estado del clima, temperatura y humedad.
-
-Configurar la ciudad y horario de notificación
-```
-Endpoint: GET /api/config → Ver configuración actual
-
-Endpoint: POST /api/config → Actualizar ciudad y/o horario del cron
-```
-El cron se reinicia automáticamente al actualizar la configuración.
-
-Notificaciones automáticas de clima vía Telegram
-
-El cron se ejecuta según la configuración y envía un mensaje a un chat de Telegram con:
-```
-Ciudad
-
-Estado del clima
-
-Temperatura
-
-Humedad
+├── modules/
+│   ├── argentina/          # Economía argentina
+│   │   ├── controllers/
+│   │   ├── services/
+│   │   ├── routes/
+│   │   └── types/
+│   ├── forex/              # Divisas internacionales
+│   ├── crypto/             # Criptomonedas
+│   ├── economy/            # Dashboards globales
+│   └── deportes/           # Datos deportivos
+├── config/
+│   ├── Server.ts           # Servidor principal
+│   ├── swagger/            # Documentación API
+│   └── database/           # Conexión a DB
+├── services/               # Servicios compartidos
+├── routes/                 # Rutas legacy
+├── controllers/            # Controladores legacy
+├── cron/                   # Tareas programadas
+└── index.ts               # Punto de entrada
 ```
 
-### Soporte de errores
+## 🛠️Tecnologías Utilizadas
+Backend
+Node.js + TypeScript - Runtime y tipado estático
 
-Maneja cuerpos de request que no sean JSON o estén mal formados.
+Express.js - Framework web
 
-Devuelve errores claros (400 Bad Request, 415 Unsupported Media Type).
+WebSocket - Comunicación en tiempo real
 
+Swagger/OpenAPI - Documentación automática
 
-## 🛠️ Tecnologías utilizadas
+APIs Externas
+Frankfurter.app - Tasas de cambio Forex (gratuita)
 
-Node.js con TypeScript → Backend tipado y moderno
+CoinGecko API - Precios de criptomonedas (gratuita)
 
-Express.js → Servidor HTTP y rutas REST
+DolarAPI.com - Dólar argentino (gratuita)
 
-WebSocket (ws) → Comunicación en tiempo real opcional
+OpenWeatherMap - Datos meteorológicos
 
-node-cron → Tareas programadas para enviar clima automáticamente
+TheSportsDB - Resultados deportivos
 
-OpenWeather API → Fuente de datos meteorológicos
+Utilidades
+node-cron - Tareas programadas
 
-Telegram Bot API → Envío de mensajes al chat de Telegram
+Telegram Bot API - Notificaciones
 
-dotenv → Variables de entorno para configuración segura
+CORS - Acceso cross-origin
 
+dotenv - Variables de entorno
 
-## 🏃‍♂️ Cómo ejecutar la aplicación
+### ⚙️ Configuración Local
+1. Clonar repositorio
 
-Clonar el repositorio
 ```
-git clone <url-del-repo>
-cd <nombre-del-repo>
+git clone https://github.com/juandejunin/asistente-virtual.git
+cd asistente-virtual
 ```
 
-Instalar dependencias
+2. Instalar dependencias
+
 ```
 npm install
 ```
 
-Configurar variables de entorno
-Crear un archivo .env con:
+3. Configurar variables de entorno
 
 ```
+# Servidor
 PORT=3000
+NODE_ENV=development
+
+# APIs Económicas
+COTIZACIONES_API_URL=https://api.example.com/cotizaciones
+DOLARES_API_URL=https://dolarapi.com/v1/dolares
+
+# Forex
+FOREX_API_URL=https://api.frankfurter.app
+
+# Crypto
+COINGECKO_API_URL=https://api.coingecko.com/api/v3
+
+# Clima
+OPENWEATHER_API_KEY=tu_clave_aqui
 CITY=Buenos Aires
-OPENWEATHER_API_KEY=<tu_api_key>
-TELEGRAM_TOKEN=<tu_token>
-TELEGRAM_CHAT_ID=<tu_chat_id>
+
+# Telegram (opcional)
+TELEGRAM_TOKEN=tu_token
+TELEGRAM_CHAT_ID=tu_chat_id
 ```
 
-Iniciar la aplicación
+4. Iniciar servidor
+
 ```
+# Desarrollo (con recarga automática)
 npm run dev
-```
 
-Endpoints disponibles
-```
-Método	Ruta	Descripción
-GET	/api/weather/today	Obtener clima actual
-GET	/api/config	Ver configuración actual
-POST	/api/config	Actualizar ciudad y/o horario
-POST	/api/config/city	Actualizar solo la ciudad
-POST	/api/config/schedule	Actualizar solo el horario del cron
-
-```
-💡 Notas
-
-Los cambios de ciudad y horario se aplican dinámicamente, sin reiniciar el servidor.
-
-La configuración actual se mantiene en memoria, pero se puede extender para persistir en archivo JSON o base de datos.
-
-Los mensajes de Telegram siempre reflejan la ciudad actual configurada, no la del .env.
+# Producción
+npm run build
+npm start```

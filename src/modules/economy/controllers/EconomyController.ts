@@ -1,8 +1,8 @@
 // src/controllers/EconomyController.ts - VERSIÓN CORRECTA
 import { Request, Response } from 'express';
-import { ForexService } from '../services/forex/ForexService';
-import { CryptoService } from '../services/crypto/CryptoService';
-import { ExchangeService } from '../services/ExchangeService'; // ✅ TU servicio existente
+import { ForexService } from '../../forex/services/ForexService';
+import { CryptoService } from '../../crypto/services/CryptoService';
+import { ArgentinaService } from '../../argentina/services/ArgentinaService'; // ✅ TU servicio existente
 
 export class EconomyController {
     // ✅ Dashboard global (Forex Internacional + Crypto)
@@ -48,8 +48,8 @@ export class EconomyController {
             console.log('🇦🇷 Building Argentina dashboard...');
             
             const [dolaresData, cotizacionesData] = await Promise.all([
-                ExchangeService.getDolares(),       // ✅ TU servicio directo
-                ExchangeService.getCotizaciones()   // ✅ TU servicio directo
+                ArgentinaService.getDolares(),       // ✅ TU servicio directo
+                ArgentinaService.getCotizaciones()   // ✅ TU servicio directo
             ]);
             
             const dashboard = {
@@ -89,8 +89,8 @@ export class EconomyController {
             const [forexData, cryptoData, dolaresData, cotizacionesData] = await Promise.all([
                 ForexService.getAllRates(),
                 CryptoService.getTop5(),
-                ExchangeService.getDolares(),      // ✅ Directo
-                ExchangeService.getCotizaciones()  // ✅ Directo
+                ArgentinaService.getDolares(),      // ✅ Directo
+                ArgentinaService.getCotizaciones()  // ✅ Directo
             ]);
             
             const dashboard = {
@@ -138,7 +138,7 @@ export class EconomyController {
             const forexGlobal = await ForexService.getAllRates();
             
             // 2. Dólar argentino (de TU servicio)
-            const argentinaDolares = await ExchangeService.getDolares();
+            const argentinaDolares = await ArgentinaService.getDolares();
             
             // 3. Extraer ARS para integrar
             const arsRate = this.extractARSRate(argentinaDolares);
@@ -150,7 +150,7 @@ export class EconomyController {
                 // ✅ Añadir ARS integrado
                 integratedARS: {
                     value: arsRate,
-                    source: 'Local ExchangeService',
+                    source: 'Local ArgentinaService ',
                     type: 'blue' // o 'oficial' según lo que extraigas
                 },
                 

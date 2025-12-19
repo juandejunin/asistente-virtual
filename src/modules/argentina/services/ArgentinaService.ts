@@ -1,5 +1,5 @@
 // src/services/ExchangeService.ts
-export class ExchangeService {
+export class ArgentinaService {
   // Variables de entorno para Node
   private static COTIZACIONES_API_URL = process.env.COTIZACIONES_API_URL!;
   private static DOLARES_API_URL = process.env.DOLARES_API_URL!;

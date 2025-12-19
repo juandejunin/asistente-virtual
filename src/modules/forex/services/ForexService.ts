@@ -1,6 +1,6 @@
 // src/services/forex/ForexService.ts
 import NodeCache from "node-cache";
-import { ExchangeService } from "./../ExchangeService";
+import { ArgentinaService } from "../../argentina/services/ArgentinaService";
 
 const cache = new NodeCache({ stdTTL: 300 });
 
@@ -247,7 +247,7 @@ export class ForexService {
 
     try {
       // Usar tu ExchangeService existente
-      const data = await ExchangeService.getDolares();
+      const data = await ArgentinaService.getDolares();
 
       // Formatear según la estructura de tu API
       let rates: any = {};

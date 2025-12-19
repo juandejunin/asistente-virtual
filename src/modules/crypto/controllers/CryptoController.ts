@@ -1,6 +1,6 @@
 // src/controllers/CryptoController.ts
 import { Request, Response } from 'express';
-import { CryptoService } from '../services/crypto/CryptoService';
+import { CryptoService } from '../services/CryptoService';
 
 export class CryptoController {
     // ✅ GET /api/crypto/top

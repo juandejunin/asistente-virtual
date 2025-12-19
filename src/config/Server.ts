@@ -8,30 +8,26 @@ import ConfigRoutes from "../routes/config.routes";
 import cors from "cors";
 import { connectToDatabase } from "../config/database";
 
+import { setupSwagger } from "./swagger";
+
 import GeoRoutes from "../routes/geo.routes";
-import cotizacionesRoutes from "../routes/cotizaciones.routes";
-import dolaresRoutes from "../routes/dolares.routes";
+import { argentinaRoutes } from "../modules/argentina";
+
 import sportRoutes from "../routes/deportes.routes";
 import { startSportsCacheCron } from "../cron/sportsCron";
-import { SportsService } from "../services/SportsService";
+
 import { startFullArchiveCron } from "../cron/fullArchiveCron";
 // Al inicio del archivo
 import deportesArchiveRoutes from "../routes/deportesArchive.routes";
-import { SportsArchiveService } from "../services/SportsArchiveService";
+
 import seasonRoutes from "../routes/season.routes";
 import authRoutes from "../routes/auth.routes";
 
-import { SeasonService } from "../services/SeasonService";
-import { LeagueSeasonModel } from "../models/LeagueSeasonModel";
-import { LEAGUES_CONFIG, SEASON } from "../config/leagues.config";
-import { TelegramBotService } from "../services/Telegram/TelegramBotService";
-import citiesRoutes from "../routes/cities.routes";
 import cookieParser from "cookie-parser";
-import forexRoutes from "../routes/forex.routes";
-import cryptoRoutes from "../routes/crypto.routes";
-import economyRoutes from "../routes/economy.routes";
-
-
+import { forexRoutes } from "../modules/forex";
+import { cryptoRoutes } from "../modules/crypto";
+import { economyRoutes } from "../modules/economy";
+import { TelegramBotService } from "../services/Telegram";
 
 class Server {
   private app: Application;
@@ -49,7 +45,9 @@ class Server {
     this.middlewares();
     this.routes();
 
-    // new TelegramBotService();
+    new TelegramBotService();
+
+    setupSwagger(this.app);
 
     this.server = http.createServer(this.app);
     this.wss = new WebSocketServer({ server: this.server });
@@ -98,22 +96,6 @@ class Server {
       }
       next();
     });
-
-    // 🔒 Middleware de API Key (protege todo excepto /api/config)
-    // this.app.use((req: Request, res: Response, next: NextFunction) => {
-    //   // Rutas públicas
-    //   if (req.path.startsWith("/api/config") || req.path === "/") {
-    //     return next();
-    //   }
-
-    //   const token = req.headers["x-api-key"];
-    //   if (token !== process.env.API_KEY) {
-    //     console.warn(`🚫 Acceso bloqueado: token inválido desde ${req.ip}`);
-    //     return res.status(403).json({ message: "Forbidden" });
-    //   }
-
-    //   next();
-    // });
   }
 
   private routes() {
@@ -125,8 +107,7 @@ class Server {
     this.app.use("/api/weather", WeatherRoutes);
     this.app.use("/api/config", ConfigRoutes);
     this.app.use("/api/geo", GeoRoutes);
-    this.app.use("/api/cotizaciones", cotizacionesRoutes);
-    this.app.use("/api/dolares", dolaresRoutes);
+
     this.app.use("/api/deportes", sportRoutes);
     this.app.use("/api/deportes/archive", deportesArchiveRoutes);
     this.app.use("/api/season", seasonRoutes);
@@ -135,8 +116,9 @@ class Server {
     this.app.use("/api/crypto", cryptoRoutes);
     this.app.use("/api/economy", economyRoutes);
 
-
-    // this.app.use("/api/cities", citiesRoutes)
+    this.app.use("/api/cotizaciones", argentinaRoutes); // Legacy
+    this.app.use("/api/dolares", argentinaRoutes); // Legacy
+    this.app.use("/api/economy/argentina", argentinaRoutes); // Nueva
   }
 
   private websocketHandlers() {

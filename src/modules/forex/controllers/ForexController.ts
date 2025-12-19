@@ -1,6 +1,6 @@
 // src/controllers/ForexController.ts
 import { Request, Response } from 'express';
-import { ForexService } from '../services/forex/ForexService';
+import { ForexService } from '../services/ForexService';
 
 export class ForexController {
     // ✅ Mantener compatibilidad con tu código existente

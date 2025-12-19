@@ -45,7 +45,7 @@ class Server {
     this.middlewares();
     this.routes();
 
-    new TelegramBotService();
+    // new TelegramBotService();
 
     setupSwagger(this.app);
 

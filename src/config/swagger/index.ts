@@ -20,7 +20,7 @@ const swaggerSpec = swaggerJSDoc(options);
 export function setupSwagger(app: Application): void {
   // Ruta principal de Swagger UI
   app.use(
-    "/api-docs",
+    "/api/docs",
     swaggerUi.serve,
     swaggerUi.setup(swaggerSpec, {
       explorer: true,
@@ -31,14 +31,14 @@ export function setupSwagger(app: Application): void {
   );
 
   // Ruta para el spec en JSON (útil para integraciones)
-  app.get("/api-docs.json", (req, res) => {
+  app.get("/api/docs.json", (req, res) => {
     res.setHeader("Content-Type", "application/json");
     res.send(swaggerSpec);
   });
 
   // ✅ USAR config.backendUrl DINÁMICAMENTE
-  const swaggerUrl = `${config.backendUrl}/api-docs`;
-  const jsonSpecUrl = `${config.backendUrl}/api-docs.json`;
+  const swaggerUrl = `${config.backendUrl}/api/docs`;
+  const jsonSpecUrl = `${config.backendUrl}/api/docs.json`;
 
   console.log(`📚 Swagger UI disponible en: ${swaggerUrl}`);
   console.log(`📄 Swagger JSON spec en: ${jsonSpecUrl}`);

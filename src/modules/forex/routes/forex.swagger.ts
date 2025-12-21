@@ -7,7 +7,7 @@
 
 /**
  * @swagger
- * /api/economy/forex/global:
+ * /api/forex/global:
  *   get:
  *     tags: [Forex]
  *     summary: Tasas de cambio globales organizadas
@@ -115,7 +115,7 @@
 
 /**
  * @swagger
- * /api/economy/forex/all:
+ * /api/forex/all:
  *   get:
  *     tags: [Forex]
  *     summary: Todas las tasas en formato unificado
@@ -171,7 +171,7 @@
 
 /**
  * @swagger
- * /api/economy/forex/convert:
+ * /api/forex/convert:
  *   get:
  *     tags: [Forex]
  *     summary: Conversor de divisas
@@ -289,7 +289,7 @@
 
 /**
  * @swagger
- * /api/economy/forex/health:
+ * /api/forex/health:
  *   get:
  *     tags: [Health, Forex]
  *     summary: Estado del servicio Forex

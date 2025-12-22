@@ -25,7 +25,7 @@ import seasonRoutes from "../routes/season.routes";
 import authRoutes from "../routes/auth.routes";
 
 import cookieParser from "cookie-parser";
-import { forexRoutes } from "../modules/forex";
+import { forexRouter } from "../modules/forex";
 import { cryptoRoutes } from "../modules/crypto";
 import { economyRoutes } from "../modules/economy";
 import { TelegramBotService } from "../services/Telegram";
@@ -113,13 +113,13 @@ class Server {
     this.app.use("/api/deportes/archive", deportesArchiveRoutes);
     this.app.use("/api/season", seasonRoutes);
     this.app.use("/api/auth", authRoutes);
-    this.app.use("/api/forex", forexRoutes); // Solo forex
+    this.app.use("/api/forex", forexRouter); 
     this.app.use("/api/crypto", cryptoRoutes);
     this.app.use("/api/economy", economyRoutes);
 
-    this.app.use("/api/cotizaciones", argentinaRoutes); // Legacy
-    this.app.use("/api/dolares", argentinaRoutes); // Legacy
-    this.app.use("/api/economy/argentina", argentinaRoutes); // Nueva
+    this.app.use("/api/cotizaciones", argentinaRoutes); 
+    this.app.use("/api/dolares", argentinaRoutes); 
+    this.app.use("/api/economy/argentina", argentinaRoutes); 
   }
 
   private websocketHandlers() {

@@ -426,7 +426,7 @@
  *                   type: string
  *                   example: EUR
  *                 count:
- *                   type: number
+ *                   type: integer
  *                   example: 32
  *                 data:
  *                   type: array
@@ -450,7 +450,10 @@
  *                         type: number
  *                         example: 0.92311
  *       400:
- *         description: Divisa no especificada o invál*
+ *         description: Parámetros inválidos (divisa no especificada, no soportada o rango de fechas incorrecto)
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
 
 
 /**

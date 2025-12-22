@@ -7,6 +7,7 @@ import { logger } from "../utils/logger";
 import ConfigRoutes from "../routes/config.routes";
 import cors from "cors";
 import { connectToDatabase } from "../config/database";
+import { startForexCron } from "../cron/forexCron";
 
 import { setupSwagger } from "./swagger";
 
@@ -142,6 +143,7 @@ class Server {
 
     startSportsCacheCron(this);
     startFullArchiveCron(this);
+    startForexCron();
   }
 }
 

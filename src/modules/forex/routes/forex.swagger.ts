@@ -314,6 +314,147 @@
 
 /**
  * @swagger
+ * /api/forex/trend/{currency}:
+ *   get:
+ *     tags: [Forex, History]
+ *     summary: Tendencia diaria de una divisa
+ *     description: |
+ *       Compara el **precio de cierre de hoy vs ayer**
+ *       y devuelve la dirección de la tendencia.
+ *
+ *       Ideal para:
+ *       - Flecha verde / roja
+ *       - Indicadores rápidos
+ *
+ *       📌 **Base:** USD  
+ *       📌 **Fuente:** Base de datos histórica propia
+ *     parameters:
+ *       - in: path
+ *         name: currency
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: BRL
+ *         description: Código ISO 4217 de la divisa
+ *     responses:
+ *       200:
+ *         description: Tendencia calculada correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 currency:
+ *                   type: string
+ *                   example: BRL
+ *                 date:
+ *                   type: string
+ *                   format: date-time
+ *                   example: "2025-12-22T00:00:00.000Z"
+ *                 today:
+ *                   type: number
+ *                   example: 5.5294
+ *                 yesterday:
+ *                   type: number
+ *                   example: 5.5295
+ *                 change:
+ *                   type: number
+ *                   example: -0.0001
+ *                 changePercent:
+ *                   type: number
+ *                   example: -0.01
+ *                 direction:
+ *                   type: string
+ *                   enum: [up, down, flat]
+ *                   example: down
+ *       404:
+ *         description: No hay suficientes datos históricos
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+
+/**
+ * @swagger
+ * /api/forex/history/{currency}:
+ *   get:
+ *     tags: [Forex, History]
+ *     summary: Histórico OHLC de una divisa
+ *     description: |
+ *       Devuelve datos históricos diarios **OHLC** (Open, High, Low, Close)
+ *       almacenados en la base de datos.
+ *
+ *       Este endpoint es ideal para:
+ *       - Gráficos de velas (candlestick)
+ *       - Análisis histórico
+ *
+ *       📌 **Base:** USD  
+ *       📌 **Fuente:** Base de datos histórica propia
+ *     parameters:
+ *       - in: path
+ *         name: currency
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: EUR
+ *         description: Código ISO 4217 de la divisa (EUR, BRL, JPY, etc.)
+ *       - in: query
+ *         name: from
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: 2023-01-01
+ *         description: Fecha inicial (YYYY-MM-DD)
+ *       - in: query
+ *         name: to
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: 2023-02-01
+ *         description: Fecha final (YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: Histórico OHLC obtenido exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 currency:
+ *                   type: string
+ *                   example: EUR
+ *                 count:
+ *                   type: number
+ *                   example: 32
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       date:
+ *                         type: string
+ *                         format: date-time
+ *                         example: "2023-01-01T00:00:00.000Z"
+ *                       open:
+ *                         type: number
+ *                         example: 0.93756
+ *                       high:
+ *                         type: number
+ *                         example: 0.95238
+ *                       low:
+ *                         type: number
+ *                         example: 0.91718
+ *                       close:
+ *                         type: number
+ *                         example: 0.92311
+ *       400:
+ *         description: Divisa no especificada o invál*
+
+
+/**
+ * @swagger
  * components:
  *   schemas:
  *     MajorRates:

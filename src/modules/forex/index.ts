@@ -1,6 +1,10 @@
-// src/modules/forex/index.ts - IDÉNTICO a economy
-export { ForexController } from './controllers/ForexController';
-export { forexRoutes } from './routes/forex.routes';
+import { Router } from "express";
+import { forexHistoryRoutes } from "./routes/forexHistory.routes";
 
-// Opcional: si quieres también exportar el servicio
-// export { ForexService } from './services/ForexService';
+
+const router = Router();
+
+router.use(forexHistoryRoutes);
+router.use
+
+export const forexRoutes = router;

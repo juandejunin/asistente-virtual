@@ -2,7 +2,6 @@
 import NodeCache from "node-cache";
 import ForexRate from "../../../models/ForexRate";
 
-
 const cache = new NodeCache({ stdTTL: 300 });
 
 export class ForexService {
@@ -98,7 +97,11 @@ export class ForexService {
         this.getLatinAmericanRates(),
       ]);
 
-      const result = { major, latinAmerica: latam, timestamp: new Date().toISOString() };
+      const result = {
+        major,
+        latinAmerica: latam,
+        timestamp: new Date().toISOString(),
+      };
       this.cache.set(cacheKey, result, 300);
       return result;
     } catch (error: unknown) {
@@ -115,38 +118,83 @@ export class ForexService {
     }
   }
 
+  // static async updateDailyOHLC(): Promise<void> {
+  //   const today = new Date();
+  //   today.setUTCHours(0, 0, 0, 0);
+
+  //   const res = await fetch("https://api.frankfurter.app/latest?from=USD");
+  //   if (!res.ok) {
+  //     throw new Error(`Frankfurter error ${res.status}`);
+  //   }
+
+  //   const data = await res.json();
+  //   const rates = data.rates;
+
+  //   for (const [currency, rate] of Object.entries(rates)) {
+  //     const existing = await ForexRate.findOne({ date: today, currency });
+
+  //     if (!existing) {
+  //       // primera vez del día → open = high = low = close
+  //       await ForexRate.create({
+  //         date: today,
+  //         currency,
+  //         base: "USD",
+  //         open: rate,
+  //         high: rate,
+  //         low: rate,
+  //         close: rate,
+  //       });
+  //     } else {
+  //       // actualizar máximos / mínimos / cierre
+  //       existing.high = Math.max(existing.high, rate as number);
+  //       existing.low = Math.min(existing.low, rate as number);
+  //       existing.close = rate as number;
+  //       await existing.save();
+  //     }
+  //   }
+  // }
+
   static async updateDailyOHLC(): Promise<void> {
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const today = new Date().toISOString().split("T")[0];
+  console.log("📅 Fecha OHLC:", today);
 
-    const res = await fetch("https://api.frankfurter.dev/v1/latest?base=USD");
-    if (!res.ok) {
-      throw new Error(`Frankfurter error ${res.status}`);
-    }
+  const res = await fetch("https://api.frankfurter.app/latest?from=USD");
+  const data = await res.json();
 
-    const data = await res.json();
-    const rates = data.rates;
+  console.log("📊 Base:", data.base);
+  console.log("📊 Date API:", data.date);
+  console.log("📊 Rates keys:", Object.keys(data.rates || {}).length);
 
-    for (const [currency, rate] of Object.entries(rates)) {
-      const existing = await ForexRate.findOne({ date: today, currency });
+  const rates = data.rates;
 
-      if (!existing) {
-        // primera vez del día → open = high = low = close
-        await ForexRate.create({
-          date: today,
-          currency,
-          base: "USD",
-          open: rate,
-          high: rate,
-          low: rate,
-          close: rate,
-        });
-      } else {
-        // actualizar máximos / mínimos / cierre
-        existing.high = Math.max(existing.high, rate as number);
-        existing.low = Math.min(existing.low, rate as number);
-        existing.close = rate as number;
-        await existing.save();
-      }
+  for (const [currency, rate] of Object.entries(rates)) {
+    console.log("➡️ Procesando:", currency, rate);
+
+    const existing = await ForexRate.findOne({ date: today, currency });
+
+    if (!existing) {
+      console.log("🆕 Creando registro:", currency);
+
+      await ForexRate.create({
+        date: today,
+        currency,
+        base: "USD",
+        open: rate,
+        high: rate,
+        low: rate,
+        close: rate,
+      });
+    } else {
+      console.log("✏️ Actualizando registro:", currency);
+
+      existing.high = Math.max(existing.high, rate as number);
+      existing.low = Math.min(existing.low, rate as number);
+      existing.close = rate as number;
+      await existing.save();
     }
   }
+
+  console.log("✅ updateDailyOHLC finalizado");
+}
+
 }

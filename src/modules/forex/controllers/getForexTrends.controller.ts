@@ -8,10 +8,14 @@ import { getForexTrends } from "../services/getForexTrends.service";
  */
 export const getForexTrendsController = async (req: Request, res: Response) => {
   try {
-    const data = await getForexTrends();
-    res.json(data);
-  } catch (error: any) {
-    console.error("Error en getForexTrendsController:", error);
-    res.status(500).json({ message: "Error obteniendo tendencias Forex" });
+    const daysQuery = req.query.days as string;
+    const compareDays = daysQuery ? daysQuery.split(",").map(d => parseInt(d, 10)) : [1];
+
+    const trends = await getForexTrends(compareDays);
+    res.json({ success: true, data: trends });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Error obteniendo tendencias Forex' });
   }
 };
+

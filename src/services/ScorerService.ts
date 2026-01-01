@@ -24,8 +24,8 @@ interface Scorer {
   player: Player;
   team: Team;
   goals: number;
-  assists: number;     // ← NUEVO
-  penalties: number;   // ← NUEVO
+  assists: number;     
+  penalties: number;   
 }
 
 export class ScorerService {
@@ -37,7 +37,10 @@ export class ScorerService {
     type: ScorerType,
     season?: number
   ): Promise<{ scorers: Scorer[]; season: number }> {
-    const year = season || new Date().getFullYear();
+    // Hardcode temporal: temporada activa 2025/2026 hasta junio 2026 aprox
+    const defaultSeason = 2025;
+
+    const year = season || defaultSeason;
     const cacheKey = { leagueCode, season: year, type };
 
     // 1. Buscar en caché (con .lean() para objeto plano)

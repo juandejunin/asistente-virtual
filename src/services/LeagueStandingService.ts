@@ -7,8 +7,10 @@ export class LeagueStandingService {
   private apiKey = process.env.FOOTBALL_DATA_API_KEY;
 
   async getStandings(leagueCode: string, season?: number): Promise<any> {
-    const year = season || new Date().getFullYear();
+    const defaultSeason = 2025;
+    const year = season || defaultSeason;
     const url = `${this.apiUrl}/competitions/${leagueCode}/standings?season=${year}`;
+    
 
     // 1. Buscar en cache
     const cached = await LeagueStandingModel

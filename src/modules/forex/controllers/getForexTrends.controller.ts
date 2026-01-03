@@ -7,7 +7,10 @@ import { getForexTrends } from "../services/getForexTrends.service";
  * Devuelve todas las monedas frente a USD con su tendencia diaria
  */
 export const getForexTrendsController = async (req: Request, res: Response) => {
+  
   try {
+
+    
     const daysQuery = req.query.days as string;
     const compareDays = daysQuery ? daysQuery.split(",").map(d => parseInt(d, 10)) : [1];
 

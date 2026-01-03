@@ -3,6 +3,6 @@ import { ForexTrend } from "./forexTrend.type";
 
 export interface ForexTrendsResponse {
   base: "USD";
-  updated: string;           // ISO date
+  updated: string;
   trends: ForexTrend[];
 }

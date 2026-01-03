@@ -37,7 +37,9 @@
     "node-telegram-bot-api": "^0.63.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "ws": "^8.18.3"
+    "tsconfig-paths": "^4.2.0",
+    "ws": "^8.18.3",
+    "zod": "^4.3.4"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

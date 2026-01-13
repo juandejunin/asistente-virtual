@@ -11,5 +11,7 @@ const ForexRateSchema = new mongoose.Schema({
   base: { type: String, required: true },
 });
 
+ForexRateSchema.index({ currency: 1, date: -1 });
+
 const ForexRate = mongoose.model("ForexRate", ForexRateSchema);
 export default ForexRate;

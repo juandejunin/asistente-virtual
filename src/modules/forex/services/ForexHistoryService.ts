@@ -41,8 +41,8 @@ export class ForexHistoryService {
       pairDirection === "down"
         ? "up"
         : pairDirection === "up"
-        ? "down"
-        : "flat";
+          ? "down"
+          : "flat";
 
     return {
       pair: `USD/${currency}`,
@@ -76,4 +76,42 @@ export class ForexHistoryService {
 
     return doc;
   }
+
+  static async getOHLCForMultipleDays(
+    currency: string,
+    daysAgoList: number[]
+  ) {
+    const today = new Date();
+
+    const targetDates = daysAgoList.map((days) => {
+      const d = new Date(today);
+      d.setDate(d.getDate() - days);
+      return d; // 👈 Date, no string
+    });
+
+    // La fecha más antigua que necesitamos
+    const oldestDate = new Date(
+      Math.min(...targetDates.map((d) => d.getTime()))
+    );
+
+    const docs = await ForexRate.find({
+      currency,
+      date: { $gte: oldestDate },
+    })
+      .sort({ date: -1 })
+      .select("date close")
+      .lean();
+
+    const result: Record<number, any> = {};
+
+    daysAgoList.forEach((days, index) => {
+      const target = targetDates[index];
+
+      result[days] =
+        docs.find((d) => new Date(d.date) <= target) ?? null;
+    });
+
+    return result;
+  }
+
 }
